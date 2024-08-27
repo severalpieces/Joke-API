@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 
 const app = express();
 const port = 3000;
+const masterKey = "b1a72f59a4d44a8f9c59f98b72e7f7a6";
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -110,14 +111,12 @@ app.put("/jokes/:id", (req: Request, res: Response) => {
     joke.jokeType = type.toString();
     return res.status(200).json(joke);
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        message:
-          error instanceof Error
-            ? error.message
-            : "An unknown error has occurred.",
-      });
+    return res.status(500).json({
+      message:
+        error instanceof Error
+          ? error.message
+          : "An unknown error has occurred.",
+    });
   }
 });
 
@@ -140,14 +139,12 @@ app.patch("/jokes/:id", (req: Request, res: Response) => {
     jokes[index] = replacementJoke;
     return res.status(200).json(replacementJoke);
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        message:
-          error instanceof Error
-            ? error.message
-            : "An unknown error has occurred.",
-      });
+    return res.status(500).json({
+      message:
+        error instanceof Error
+          ? error.message
+          : "An unknown error has occurred.",
+    });
   }
 });
 
@@ -159,7 +156,27 @@ app.delete("/jokes/:id", (req: Request, res: Response) => {
       res.status(404).json({ message: `There is no such joke with ID ${id}.` });
     }
     console.log(jokes.splice(index, 1));
-    return res.status(200).send("OK");
+    return res.sendStatus(200);
+  } catch (error) {
+    return res.status(500).json({
+      message:
+        error instanceof Error
+          ? error.message
+          : "An unknown error has occurred.",
+    });
+  }
+});
+
+app.delete("/all", (req: Request, res: Response) => {
+  try {
+    if (req.query.key === masterKey) {
+      jokes = [];
+      return res.sendStatus(200);
+    } else {
+      return res
+        .status(401)
+        .json({ message: "Sorry, you are not authorized." });
+    }
   } catch (error) {
     return res
       .status(500)

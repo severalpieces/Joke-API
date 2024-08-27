@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const app = (0, express_1.default)();
 const port = 3000;
+const masterKey = "b1a72f59a4d44a8f9c59f98b72e7f7a6";
 app.use(express_1.default.urlencoded({ extended: true }));
 app.get("/random", (req, res) => {
     try {
@@ -104,9 +105,7 @@ app.put("/jokes/:id", (req, res) => {
         return res.status(200).json(joke);
     }
     catch (error) {
-        return res
-            .status(500)
-            .json({
+        return res.status(500).json({
             message: error instanceof Error
                 ? error.message
                 : "An unknown error has occurred.",
@@ -133,9 +132,7 @@ app.patch("/jokes/:id", (req, res) => {
         return res.status(200).json(replacementJoke);
     }
     catch (error) {
-        return res
-            .status(500)
-            .json({
+        return res.status(500).json({
             message: error instanceof Error
                 ? error.message
                 : "An unknown error has occurred.",
@@ -150,7 +147,27 @@ app.delete("/jokes/:id", (req, res) => {
             res.status(404).json({ message: `There is no such joke with ID ${id}.` });
         }
         console.log(jokes.splice(index, 1));
-        return res.status(200).send("OK");
+        return res.sendStatus(200);
+    }
+    catch (error) {
+        return res.status(500).json({
+            message: error instanceof Error
+                ? error.message
+                : "An unknown error has occurred.",
+        });
+    }
+});
+app.delete("/all", (req, res) => {
+    try {
+        if (req.query.key === masterKey) {
+            jokes = [];
+            return res.sendStatus(200);
+        }
+        else {
+            return res
+                .status(401)
+                .json({ message: "Sorry, you are not authorized." });
+        }
     }
     catch (error) {
         return res
